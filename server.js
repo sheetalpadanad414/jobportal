@@ -22,7 +22,7 @@ app.get('/api/home',(req,res)=>{
 app.use('/api',userrouter)
 app.use('/api',jobrouter)
 app.use('/api',jobapplictionrouter)
-let port=process.env.port || 5051;
+let port=process.env.port || 5050;
 app.listen(port, () => {
     console.log(`Server running on http://localhost:${port}`);
 });

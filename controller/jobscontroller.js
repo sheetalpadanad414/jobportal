@@ -2,6 +2,10 @@ import mongoose from "mongoose";
 import jobmodel from "../models/jobsmodel.js";
 import usermodel from "../models/usermodel.js";
 
+import {fetchJobsFromAPI,
+  processJobWithAI,
+  saveJobToDB,
+  fetchProcessAndStoreJobs} from '../services/services.js'
 export const postjob=async(req,res)=>{
     try {
         const adminid=req.params.adminid;
@@ -18,6 +22,8 @@ export const postjob=async(req,res)=>{
         if(!adminuser){
             return res.status(404).json({error:'admin user not found'});
         }
+        
+        
         if(adminuser.isadmin!==true){
             return res.status(400).json({error:'only admin can post jobs'});
         }
@@ -79,11 +85,7 @@ export  const updatejob=async(req,res)=>{
       if(!jobdetails){
         return res.status(404).json({error:"job not found"})
       }
-      
-      
-      
-      
-       
+
       if(jobdetails.userid._id.toString()!==adminid){
         return res.status(400).json({error:"only admin  how posted that have access"})
       }
@@ -125,3 +127,30 @@ export  const deletejob=async(req,res)=>{
         return res.status(500).json({error:'internal server error'+error.message});
     }
 }
+
+
+// In your controller
+export const importJobs = async (req, res) => {
+  try {
+    const results = await fetchProcessAndStoreJobs('6889ee4896956f2ca0c9a512');
+    
+    if (results.every(r => !r.success)) {
+      return res.status(400).json({
+        success: false,
+        message: 'All jobs failed to process',
+        results
+      });
+    }
+
+    res.json({
+      success: true,
+      results
+    });
+  } catch (error) {
+    console.error('Import jobs error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Job import failed'
+    });
+  }
+};
